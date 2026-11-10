@@ -358,7 +358,8 @@ def principal():
     DetectorRosto()  # falha aqui (e não no meio) se faltar o cascata
     threads = args.threads or min(8, (os.cpu_count() or 4))
     lock = threading.Lock()
-    estado = {"n": 0, "sem_arquivo": 0, "sem_rosto": 0, "erro": 0}
+    estado = {"n": 0, "sem_arquivo": 0, "sem_rosto": 0, "erro": 0,
+              "soma_w": 0, "soma_h": 0, "qtd": 0, "menor": 10**9, "maior": 0}
     debug_dir = pasta / "debug"
     if args.debug:
         debug_dir.mkdir(exist_ok=True)
@@ -378,6 +379,14 @@ def principal():
                          "frac": None, "score": None, "erro": "arquivo não encontrado"})
             return item
         bgr = ler_imagem(arquivo)
+        if bgr is not None:
+            with lock:
+                ih, iw = bgr.shape[:2]
+                estado["soma_w"] += iw
+                estado["soma_h"] += ih
+                estado["qtd"] += 1
+                estado["menor"] = min(estado["menor"], min(iw, ih))
+                estado["maior"] = max(estado["maior"], max(iw, ih))
         try:
             med = medir(bgr, detector_local())
         except Exception as e:  # uma imagem ruim nunca derruba a rodada
@@ -406,6 +415,15 @@ def principal():
     falar("Medição pronta em %.1f s" % (time.time() - t0))
     falar("Sem arquivo: %d · sem rosto: %d · sem medição: %d"
           % (estado["sem_arquivo"], estado["sem_rosto"], estado["erro"]))
+    if estado["qtd"]:
+        mw = estado["soma_w"] // estado["qtd"]
+        mh = estado["soma_h"] // estado["qtd"]
+        falar("Tamanho das imagens: %dx%d em média (menor lado %d, maior lado %d)"
+              % (mw, mh, estado["menor"], estado["maior"]))
+        if estado["menor"] < 200:
+            falar("  Aviso: tem imagem pequena (%-4d px). Na tela de triagem ela vai "
+                  "ficar borrada." % estado["menor"])
+            falar("         Use --usar fotos no filtrar.py para o HTML apontar para a pasta fotos/.")
 
     medidos = [i for i in itens if i.get("ct") is not None]
     falar("\n=== DISTRIBUIÇÃO DO TOM DE CABELO (%d de %d) ===" % (len(medidos), len(itens)))

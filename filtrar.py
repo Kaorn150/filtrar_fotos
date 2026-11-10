@@ -53,6 +53,8 @@ def principal():
                     help="de onde copiar as fotos (auto = tenta fotos/ e cai para miniaturas/)")
     ap.add_argument("--sem-copiar", action="store_true", help="não copia as fotos")
     ap.add_argument("--pasta-fotos", default="selecionadas", help="destino das cópias")
+    ap.add_argument("--usar", choices=["miniaturas", "fotos"], default=None,
+                    help="faz o HTML final apontar para esta pasta (padrão: mantém o original)")
     ap.add_argument("--titulo", default=None, help="título do HTML final")
     ap.add_argument("--ver", action="store_true", help="só mostra o resumo, não grava nada")
     args = ap.parse_args()
@@ -159,6 +161,22 @@ def principal():
         p["t"] = i.get("t")
         p["r"] = bool(i.get("r"))
         novos.append(p)
+    if args.usar:
+        alvo = pasta / args.usar
+        if alvo.is_dir():
+            trocados = 0
+            for p in novos:
+                arq = achar_imagem(alvo, p["u"], p.get("img"))
+                if arq:
+                    p["img"] = "%s/%s" % (args.usar, arq.name)
+                    trocados += 1
+            falar("Caminho das fotos trocado para %s/: %d de %d" % (args.usar, trocados, len(novos)))
+            if trocados < len(novos):
+                falar("  %d ficaram com o caminho original (arquivo não achado em %s/)"
+                      % (len(novos) - trocados, args.usar))
+        else:
+            falar("Aviso: a pasta %s/ não existe, mantive os caminhos originais." % args.usar)
+
     destino = pasta / args.saida
     with open(destino, "w", encoding="utf-8", newline="") as f:
         f.write(RE_PERFIS.sub(lambda m: m.group(1) + dump(novos) + m.group(3), texto, count=1))

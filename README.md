@@ -60,6 +60,41 @@ python analisar.py --imagens fotos          :: medir a pasta fotos/ em vez de mi
 A pasta `debug/` mostra o que o script mediu: retângulo amarelo = rosto,
 magenta = cabeça, verde = faixa do cabelo.
 
+## Qual pasta de imagem o HTML usa?
+
+O `galeria.html` aponta para **`miniaturas/`** (todos os 4020 perfis com foto usam
+`miniaturas/usuario.jpg`). A pasta `fotos/` não é usada em lugar nenhum do HTML.
+
+Diferença na prática:
+
+| onde aparece | tamanho na tela | miniatura dá conta? |
+|---|---|---|
+| grade de cartões | ~140 px ou mais | sim |
+| varredura | ~78 px | sim, sobra |
+| **tela de triagem** | foto grande | **depende — abaixo de ~320 px fica borrada** |
+
+O `analisar.py` agora imprime o tamanho das imagens e avisa se forem pequenas:
+
+```
+Tamanho das imagens: 150x150 em média (menor lado 150, maior lado 150)
+  Aviso: tem imagem pequena (150  px). Na tela de triagem ela vai ficar borrada.
+         Use --usar fotos no filtrar.py para o HTML apontar para a pasta fotos/.
+```
+
+Para a galeria final usar as fotos grandes em vez das miniaturas:
+
+```bat
+python filtrar.py --usar fotos
+```
+
+Ele procura o arquivo de cada aprovado dentro de `fotos/` (aceita nome diferente,
+contanto que o @ apareça no nome) e reescreve o caminho; quem não achar mantém o
+caminho de `miniaturas/`. A cópia para `selecionadas/` continua saindo da pasta
+`fotos/` por padrão, caindo para `miniaturas/` se faltar arquivo.
+
+Dá também para medir direto as fotos grandes, se quiser mais detalhe na medição
+(mais demorado): `python analisar.py --imagens fotos`.
+
 ## 3. Conferir o corte (importante)
 
 Abra o `galeria_medida.html`, ordene por **"mais escuro"** e vá rolando.
