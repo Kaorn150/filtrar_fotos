@@ -1,0 +1,3 @@
+# Só isso. Nada de modelos para baixar — os cascata de rosto já vêm dentro do OpenCV.
+opencv-python-headless==4.10.0.84
+numpy>=1.24

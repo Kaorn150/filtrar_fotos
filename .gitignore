@@ -1,0 +1,9 @@
+# gerados pelos scripts (não subir para o GitHub)
+analise.json
+galeria_medida.html
+galeria_final.html
+selecionadas.txt
+selecionadas/
+debug/
+.venv/
+__pycache__/
