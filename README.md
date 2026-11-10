@@ -62,6 +62,25 @@ magenta = cabeça, verde = faixa do cabelo.
 
 ## Qual pasta de imagem o HTML usa?
 
+Antes de tudo, descubra se `fotos/` e `miniaturas/` são a mesma imagem:
+
+```bat
+comparar.bat          ou:  python comparar_pastas.py
+```
+
+Ele compara alguns pares, redimensiona o maior para o tamanho do menor e diz na
+hora se é a mesma foto ou conteúdo diferente:
+
+```
+@pessoa00      600x600   150x150   84KB/3KB   diferença 2.5   SIM
+Diferença média de pixels: 2.3   ·   Correlação de cor média: 0.99
+CONCLUSÃO: é a MESMA foto nas duas pastas — só muda o tamanho.
+```
+
+Também avisa se uma pasta tiver muito mais arquivos que a outra — sinal de que
+ali tem mais de uma foto por pessoa (por exemplo, fotos dos posts, e não a foto
+do perfil).
+
 O `galeria.html` aponta para **`miniaturas/`** (todos os 4020 perfis com foto usam
 `miniaturas/usuario.jpg`). A pasta `fotos/` não é usada em lugar nenhum do HTML.
 
